@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+// lel
+
 namespace WindowsFormsApplication1
 {
     static class Program
