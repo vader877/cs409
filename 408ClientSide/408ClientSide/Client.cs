@@ -8,12 +8,14 @@ namespace _408ClientSide
     {
         bool isConnected;
         TcpClient newClient = new TcpClient();
+        
 
         public Client()
         {
             isConnected = false;
             statusText.Text = "DISCONNECTED";
             InitializeComponent();
+            
         }
 
         private void connectButton_Click(object sender, EventArgs e)
@@ -85,10 +87,6 @@ namespace _408ClientSide
             this.Close();
         }
 
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
 
         private void listButton_Click(object sender, EventArgs e)
         {
@@ -110,6 +108,11 @@ namespace _408ClientSide
             }
 
             displayScreen.AppendText("\n");
+        }
+
+        private void connectButton_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

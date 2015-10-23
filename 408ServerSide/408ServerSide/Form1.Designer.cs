@@ -30,9 +30,9 @@
         {
             this.infoBox = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.ipBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.portBox = new System.Windows.Forms.TextBox();
             this.startStopButton = new System.Windows.Forms.Button();
             this.listButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -54,12 +54,12 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Server IP";
             // 
-            // textBox1
+            // ipBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(98, 12);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 22);
-            this.textBox1.TabIndex = 2;
+            this.ipBox.Location = new System.Drawing.Point(98, 12);
+            this.ipBox.Name = "ipBox";
+            this.ipBox.Size = new System.Drawing.Size(100, 22);
+            this.ipBox.TabIndex = 2;
             // 
             // label2
             // 
@@ -70,12 +70,12 @@
             this.label2.TabIndex = 4;
             this.label2.Text = "Server Port";
             // 
-            // textBox2
+            // portBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(98, 58);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(100, 22);
-            this.textBox2.TabIndex = 5;
+            this.portBox.Location = new System.Drawing.Point(98, 58);
+            this.portBox.Name = "portBox";
+            this.portBox.Size = new System.Drawing.Size(100, 22);
+            this.portBox.TabIndex = 5;
             // 
             // startStopButton
             // 
@@ -85,6 +85,7 @@
             this.startStopButton.TabIndex = 6;
             this.startStopButton.Text = "Start";
             this.startStopButton.UseVisualStyleBackColor = true;
+            this.startStopButton.Click += new System.EventHandler(this.startStopButton_Click);
             // 
             // listButton
             // 
@@ -102,9 +103,9 @@
             this.ClientSize = new System.Drawing.Size(618, 206);
             this.Controls.Add(this.listButton);
             this.Controls.Add(this.startStopButton);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.portBox);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.ipBox);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.infoBox);
             this.Name = "Form1";
@@ -118,9 +119,9 @@
 
         private System.Windows.Forms.RichTextBox infoBox;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox ipBox;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox portBox;
         private System.Windows.Forms.Button startStopButton;
         private System.Windows.Forms.Button listButton;
     }
