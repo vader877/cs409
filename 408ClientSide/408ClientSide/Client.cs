@@ -12,6 +12,7 @@ namespace _408ClientSide
         public Client()
         {
             isConnected = false;
+            statusText.Text = "DISCONNECTED";
             InitializeComponent();
         }
 
