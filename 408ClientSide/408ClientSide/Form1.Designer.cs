@@ -32,7 +32,7 @@
             this.listButton = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.serverIP = new System.Windows.Forms.TextBox();
+            this.ipServer = new System.Windows.Forms.TextBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.playerName = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -79,12 +79,12 @@
             this.label4.TabIndex = 9;
             this.label4.Text = "Port:";
             // 
-            // serverIP
+            // ipServer
             // 
-            this.serverIP.Location = new System.Drawing.Point(65, 62);
-            this.serverIP.Name = "serverIP";
-            this.serverIP.Size = new System.Drawing.Size(100, 20);
-            this.serverIP.TabIndex = 10;
+            this.ipServer.Location = new System.Drawing.Point(65, 62);
+            this.ipServer.Name = "ipServer";
+            this.ipServer.Size = new System.Drawing.Size(100, 20);
+            this.ipServer.TabIndex = 10;
             // 
             // richTextBox1
             // 
@@ -130,6 +130,7 @@
             // 
             // statusText
             // 
+            this.statusText.BackColor = System.Drawing.SystemColors.Menu;
             this.statusText.Location = new System.Drawing.Point(262, 65);
             this.statusText.Name = "statusText";
             this.statusText.Size = new System.Drawing.Size(100, 20);
@@ -149,7 +150,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(447, 446);
+            this.ClientSize = new System.Drawing.Size(432, 446);
             this.Controls.Add(this.exitButton);
             this.Controls.Add(this.statusText);
             this.Controls.Add(this.label1);
@@ -157,7 +158,7 @@
             this.Controls.Add(this.label5);
             this.Controls.Add(this.playerName);
             this.Controls.Add(this.richTextBox1);
-            this.Controls.Add(this.serverIP);
+            this.Controls.Add(this.ipServer);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.listButton);
@@ -176,7 +177,7 @@
         private System.Windows.Forms.Button listButton;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox serverIP;
+        private System.Windows.Forms.TextBox ipServer;
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.TextBox playerName;
         private System.Windows.Forms.Label label5;
