@@ -6,19 +6,17 @@ namespace _408ClientSide
 {
     public partial class Client : Form
     {
-        bool isConnected;
         TcpClient newClient = new TcpClient();
 
         public Client()
         {
-            isConnected = false;
             statusText.Text = "DISCONNECTED";
             InitializeComponent();
         }
 
         private void connectButton_Click(object sender, EventArgs e)
         {
-            if (isConnected)
+            if (newClient.Connected)
             {
                 try
                 {
@@ -33,7 +31,7 @@ namespace _408ClientSide
                     int portNo = (int)portNumber.Value;
                     newClient.Connect(ipFinal, portNo);
                     displayScreen.AppendText("Establising connection to the server...\n");
-
+                    
                     // sending playerName to the server
 
                     NetworkStream serverStream = newClient.GetStream();
@@ -51,8 +49,6 @@ namespace _408ClientSide
 
                     if (approvalString == "y")
                     {
-
-                        isConnected = true;
                         displayScreen.AppendText("Connection successful!\n\n");
                         statusText.Text = "CONNECTED";
                     }
@@ -61,7 +57,10 @@ namespace _408ClientSide
                     {
                         displayScreen.AppendText("Player already exists. Please try a different name.\n\n");
                         connectButton.Text = "Connect";
-                        newClient.Close();
+                        
+                        if (!newClient.Connected)
+                            newClient.Close();
+                        
                         playerName.Clear();
                     }
                 }
@@ -73,8 +72,9 @@ namespace _408ClientSide
 
             else
             {
-                newClient.Close();
-                isConnected = false;
+                if (!newClient.Connected)
+                    newClient.Close();
+
                 statusText.Text = "DISCONNECTED";
                 connectButton.Text = "Connect";
             }
@@ -84,18 +84,17 @@ namespace _408ClientSide
         {
             this.Close();
         }
-        
 
         private void listButton_Click(object sender, EventArgs e)
         {
             NetworkStream serverStream = newClient.GetStream();
-            byte[] sentStream = System.Text.Encoding.ASCII.GetBytes("PL$");
+            byte[] sentStream = System.Text.Encoding.ASCII.GetBytes("PL");
             serverStream.Write(sentStream, 0, sentStream.Length);
             serverStream.Flush();
 
             displayScreen.AppendText("Generating the list of online players...\n\n");
 
-            byte[] PLByte = new byte[1024];
+            byte[] PLByte = new byte[102400];   // a list size of 100 kilobytes
             serverStream.Read(PLByte, 0, (int)PLByte.Length);
             string PLString = System.Text.Encoding.ASCII.GetString(PLByte);
             string[] words = PLString.Split('$');
