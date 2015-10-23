@@ -50,5 +50,10 @@ namespace _408ClientSide
         {
             this.Close();
         }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
