@@ -57,10 +57,9 @@ namespace _408ClientSide
                     {
                         displayScreen.AppendText("Player already exists. Please try a different name.\n\n");
                         connectButton.Text = "Connect";
-                        
-                        if (!newClient.Connected)
-                            newClient.Close();
-                        
+
+                        closeCheck();
+
                         playerName.Clear();
                     }
                 }
@@ -72,8 +71,7 @@ namespace _408ClientSide
 
             else
             {
-                if (!newClient.Connected)
-                    newClient.Close();
+                closeCheck();
 
                 statusText.Text = "DISCONNECTED";
                 connectButton.Text = "Connect";
@@ -105,6 +103,23 @@ namespace _408ClientSide
             }
 
             displayScreen.AppendText("\n");
+        }
+
+        private void closeCheck()
+        {
+            if (newClient.Connected)
+            {
+                sendString("close");
+                newClient.Close();
+            }
+        }
+
+        private void sendString(string s)
+        {
+            NetworkStream serverStream = newClient.GetStream();
+            byte[] sentData = System.Text.Encoding.ASCII.GetBytes(s);
+            serverStream.Write(sentData, 0, sentData.Length);
+            serverStream.Flush();
         }
     }
 }
