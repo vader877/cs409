@@ -21,17 +21,17 @@ namespace _408ClientSide
             InitializeComponent();
         }
 
-        private void btnConnectDisConnect_Click(object sender, EventArgs e)
+        private void connectButton_Click(object sender, EventArgs e)
         {
             if (isConnected)
             {
                 try
                 {
                     connectButton.Text = "Disconnect";
-                    byte ipPart1 = Convert.ToByte(ipServer.Text.Substring(0, 3));
-                    byte ipPart2 = Convert.ToByte(ipServer.Text.Substring(4, 3));
-                    byte ipPart3 = Convert.ToByte(ipServer.Text.Substring(8, 3));
-                    byte ipPart4 = Convert.ToByte(ipServer.Text.Substring(12, 3));
+                    byte ipPart1 = Convert.ToByte(serverIP.Text.Substring(0, 3));
+                    byte ipPart2 = Convert.ToByte(serverIP.Text.Substring(4, 3));
+                    byte ipPart3 = Convert.ToByte(serverIP.Text.Substring(8, 3));
+                    byte ipPart4 = Convert.ToByte(serverIP.Text.Substring(12, 3));
                     string ipAddress = ipPart1.ToString() + "." + ipPart2.ToString() + "." + ipPart3.ToString() + "." + ipPart4.ToString();
                     int portNo = (int)portNumber.Value;
                     clientSocket.Connect(ipAddress, portNo);
@@ -52,12 +52,7 @@ namespace _408ClientSide
             }
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click_1(object sender, EventArgs e)
+        private void exitButton_Click(object sender, EventArgs e)
         {
 
         }
