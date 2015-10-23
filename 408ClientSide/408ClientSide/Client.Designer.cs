@@ -96,7 +96,6 @@
             this.displayScreen.Size = new System.Drawing.Size(297, 218);
             this.displayScreen.TabIndex = 12;
             this.displayScreen.Text = "";
-            this.displayScreen.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
             // playerName
             // 

@@ -84,11 +84,7 @@ namespace _408ClientSide
         {
             this.Close();
         }
-
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void listButton_Click(object sender, EventArgs e)
         {
