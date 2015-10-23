@@ -10,14 +10,54 @@ using System.Windows.Forms;
 
 namespace _408ClientSide
 {
-    public partial class Form1 : Form
+    public partial class Client : Form
     {
-        public Form1()
+        bool isConnected;
+        TcpClient clientSocket = new TcpClient();
+
+        public Client()
         {
+            isConnected = false;
             InitializeComponent();
         }
 
+        private void btnConnectDisConnect_Click(object sender, EventArgs e)
+        {
+            if (isConnected)
+            {
+                try
+                {
+                    connectButton.Text = "Disconnect";
+                    byte ipPart1 = Convert.ToByte(ipServer.Text.Substring(0, 3));
+                    byte ipPart2 = Convert.ToByte(ipServer.Text.Substring(4, 3));
+                    byte ipPart3 = Convert.ToByte(ipServer.Text.Substring(8, 3));
+                    byte ipPart4 = Convert.ToByte(ipServer.Text.Substring(12, 3));
+                    string ipAddress = ipPart1.ToString() + "." + ipPart2.ToString() + "." + ipPart3.ToString() + "." + ipPart4.ToString();
+                    int portNo = (int)portNumber.Value;
+                    clientSocket.Connect(ipAddress, portNo);
+                    statusText.Text = "CONNECTED";
+                    isConnected = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "An error is occurred while trying to conntect to the server", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                clientSocket.Close();
+                isConnected = false;
+                statusText.Text = "DISCONNECTED";
+                connectButton.Text = "Connect";
+            }
+        }
+
         private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click_1(object sender, EventArgs e)
         {
 
         }
