@@ -14,14 +14,13 @@ namespace _408ClientSide
 
         public Client()
         {
-            statusText.Text = "DISCONNECTED";
             InitializeComponent();
-            
+            statusText.Text = "topkek"; 
         }
 
         private void connectButton_Click(object sender, EventArgs e)
         {
-            NetworkStream serverStream = newClient.GetStream();
+            
 
             if (!newClient.Connected)
             {
@@ -36,6 +35,7 @@ namespace _408ClientSide
                     string ipFinal = ipPart1.ToString() + "." + ipPart2.ToString() + "." + ipPart3.ToString() + "." + ipPart4.ToString();
                     int portNo = (int)portNumber.Value;
                     newClient.Connect(ipFinal, portNo);
+                    NetworkStream serverStream = newClient.GetStream();
                     displayScreen.AppendText("Establising connection to the server...\n");
                 
                     byte[] approvalByte = new byte[4];
