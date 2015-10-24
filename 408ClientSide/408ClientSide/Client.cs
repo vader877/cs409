@@ -8,10 +8,12 @@ namespace _408ClientSide
     {
         TcpClient newClient = new TcpClient();
 
+
         public Client()
         {
             statusText.Text = "DISCONNECTED";
             InitializeComponent();
+            
         }
 
         private void connectButton_Click(object sender, EventArgs e)
@@ -31,7 +33,7 @@ namespace _408ClientSide
                     int portNo = (int)portNumber.Value;
                     newClient.Connect(ipFinal, portNo);
                     displayScreen.AppendText("Establising connection to the server...\n");
-                    
+
                     // sending playerName to the server
 
                     NetworkStream serverStream = newClient.GetStream();
@@ -59,7 +61,7 @@ namespace _408ClientSide
                         connectButton.Text = "Connect";
                         
                         if (!newClient.Connected)
-                            newClient.Close();
+                        newClient.Close();
                         
                         playerName.Clear();
                     }
@@ -73,7 +75,7 @@ namespace _408ClientSide
             else
             {
                 if (!newClient.Connected)
-                    newClient.Close();
+                newClient.Close();
 
                 statusText.Text = "DISCONNECTED";
                 connectButton.Text = "Connect";
@@ -83,6 +85,11 @@ namespace _408ClientSide
         private void exitButton_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void listButton_Click(object sender, EventArgs e)
@@ -105,6 +112,11 @@ namespace _408ClientSide
             }
 
             displayScreen.AppendText("\n");
+        }
+
+        private void connectButton_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }
