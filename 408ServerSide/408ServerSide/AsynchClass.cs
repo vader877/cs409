@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -11,6 +12,11 @@ namespace AsynchServer
 {
     class AsynchClass
     {
+
+        public delegate void MessageRecieved(object myObject, ServerArgs myArgs);
+
+        public static event MessageRecieved OnMessageArrived;
+
         int counter = 0;
 
         string dataFromClient = null;
@@ -27,17 +33,29 @@ namespace AsynchServer
             serverSocket.Start();
             myListenerThread = new Thread(listenerThread);
             myListenerThread.Start();
+
+            ServerArgs myArgs = new ServerArgs("Connected", "status");
+            OnMessageArrived(this, myArgs);
         }
 
         private void listenerThread()
         {
             while (running)
             {
-                counter++;
-                clientSocket = serverSocket.AcceptTcpClient();
-                Console.WriteLine(" >>A new client requested connection!");
-                ClientConnection client = new ClientConnection(clientList);
-                client.startClient(clientSocket, counter);
+                try
+                {
+                    counter++;
+                    Console.WriteLine("waiting");
+                    clientSocket = serverSocket.AcceptTcpClient();
+                    Console.WriteLine(" >>A new client requested connection!");
+                    ClientConnection client = new ClientConnection(clientList);
+                    client.startClient(clientSocket, counter);
+                }
+                catch (SocketException socketEx)
+                {
+                    Console.WriteLine("ded");
+                    break;
+                }
             }
         }
         public void stop()
@@ -49,6 +67,8 @@ namespace AsynchServer
                 x.sendData("999$");
                 x.stopClient();
             }
+            ServerArgs myArgs = new ServerArgs("Stopped", "status");
+            OnMessageArrived(this, myArgs);
         }
 
         private class ClientConnection
@@ -74,6 +94,8 @@ namespace AsynchServer
 
             public void startClient(TcpClient inClientSocket, int clineNo)
             {
+                ServerArgs myArgs = new ServerArgs("connection", "rtb");
+                OnMessageArrived(this, myArgs);
                 running = true;
                 this.clientSocket = inClientSocket;
                 this.clNo = clineNo;
@@ -116,7 +138,6 @@ namespace AsynchServer
             public void stopClient()
             {
                 running = false;
-                recievedDataThread.Abort();
                 if(clientList.Contains(this))
                 {
                     clientList.Remove(this);
@@ -149,7 +170,8 @@ namespace AsynchServer
                         dataFromClient = System.Text.Encoding.ASCII.GetString(bytesFrom);
                         dataFromClient = dataFromClient.Substring(0, dataFromClient.IndexOf("$"));
                         Console.WriteLine(" >> " + "From client-" + clNo + dataFromClient);
-
+                        ServerArgs myArgs = new ServerArgs(dataFromClient, "rtb");
+                        OnMessageArrived(this, myArgs);
                     }
                     catch(Exception ex)
                     {
@@ -159,5 +181,34 @@ namespace AsynchServer
                 }
             }
         }  
+    }
+}
+
+
+public class ServerArgs : EventArgs
+{
+    private string message;
+    private string target;
+
+    public ServerArgs(string message, string target)
+    {
+        this.message = message;
+        this.target = target;
+    }
+
+    public string Message
+    {
+        get
+        {
+            return message;
+        }
+    }
+
+    public string Target
+    {
+        get
+        {
+            return target;
+        }
     }
 }

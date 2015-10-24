@@ -61,6 +61,7 @@
             this.ipBox.Name = "ipBox";
             this.ipBox.Size = new System.Drawing.Size(100, 22);
             this.ipBox.TabIndex = 2;
+            this.ipBox.Text = "192.168.1.4";
             // 
             // label2
             // 
@@ -77,6 +78,7 @@
             this.portBox.Name = "portBox";
             this.portBox.Size = new System.Drawing.Size(100, 22);
             this.portBox.TabIndex = 5;
+            this.portBox.Text = "8888";
             // 
             // startStopButton
             // 
