@@ -15,7 +15,7 @@ namespace AsynchServer
 
         public delegate void MessageRecieved(object myObject, ServerArgs myArgs);
 
-        public static event MessageRecieved OnMessageArrived;
+        public event MessageRecieved OnMessageArrived;
 
         int counter = 0;
 
@@ -29,7 +29,7 @@ namespace AsynchServer
         public void start(IPAddress ip, int port)
         {
             running = true;
-            serverSocket = new TcpListener(ip, port);
+            serverSocket = new TcpListener(IPAddress.Parse(getLocalIP()), port);
             serverSocket.Start();
             myListenerThread = new Thread(listenerThread);
             myListenerThread.Start();
@@ -50,6 +50,7 @@ namespace AsynchServer
                     Console.WriteLine(" >>A new client requested connection!");
                     ClientConnection client = new ClientConnection(clientList);
                     client.startClient(clientSocket, counter);
+                    //deletetion
                 }
                 catch (SocketException socketEx)
                 {
@@ -71,6 +72,20 @@ namespace AsynchServer
             OnMessageArrived(this, myArgs);
         }
 
+
+        private string getLocalIP()
+        {
+            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (IPAddress ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    return ip.ToString();
+            }
+            return "127.0.0.1";
+        }
+
+
+
         private class ClientConnection
         {
             int retry = 3;
@@ -81,7 +96,7 @@ namespace AsynchServer
             TcpClient clientSocket;
             Thread recievedDataThread;
             Byte[] sendBytes = null;
-            byte[] bytesFrom = new byte[10025];
+            Byte[] bytesFrom = new byte[10025];
             string dataFromClient = null;
             NetworkStream networkStream;
             List<ClientConnection> clientList;
@@ -95,7 +110,7 @@ namespace AsynchServer
             public void startClient(TcpClient inClientSocket, int clineNo)
             {
                 ServerArgs myArgs = new ServerArgs("connection", "rtb");
-                OnMessageArrived(this, myArgs);
+                //OnMessageArrived(this, myArgs);
                 running = true;
                 this.clientSocket = inClientSocket;
                 this.clNo = clineNo;
@@ -104,14 +119,20 @@ namespace AsynchServer
 
                 recievedDataThread = new Thread(recievedData);
                 recievedDataThread.Start();
-
+/*
                 for (int x = 0; x < retry; x++ )
                 {
                     sendData("001$");
                     Thread.Sleep(500);
                     clientName = dataFromClient;
+                    //break
                 }
-                
+ */
+
+                sendData("001$");
+                Thread.Sleep(500);
+                clientName = dataFromClient;
+
                 if(clientName == null)
                 {
                     //no response recieved
@@ -171,7 +192,7 @@ namespace AsynchServer
                         dataFromClient = dataFromClient.Substring(0, dataFromClient.IndexOf("$"));
                         Console.WriteLine(" >> " + "From client-" + clNo + dataFromClient);
                         ServerArgs myArgs = new ServerArgs(dataFromClient, "rtb");
-                        OnMessageArrived(this, myArgs);
+                       // OnMessageArrived(this, myArgs);
                     }
                     catch(Exception ex)
                     {

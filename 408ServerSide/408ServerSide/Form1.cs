@@ -23,9 +23,6 @@ namespace _408ServerSide
 
 
         private Boolean running = false;
-        private string ipAddress;
-       // private Listener myListener;
-        TcpClient clientSocket = default(TcpClient);
 
         public Form1()
         {
@@ -36,31 +33,11 @@ namespace _408ServerSide
         {
             if (!running)
             {
-                /*
-                try
-                {
-                    /*
-                    byte ipPart1 = Convert.ToByte(ipBox.Text.Substring(0, 3));
-                    byte ipPart2 = Convert.ToByte(ipBox.Text.Substring(4, 3));
-                    byte ipPart3 = Convert.ToByte(ipBox.Text.Substring(8, 3));
-                    byte ipPart4 = Convert.ToByte(ipBox.Text.Substring(12, 3));
-
-                    ipAddress = ipPart1.ToString() + "." + ipPart2.ToString() + "." + ipPart3.ToString() + "." + ipPart4.ToString();
-
-                    
-                    Console.WriteLine();
-                }
-                catch
-                {
-                    System.Windows.Forms.MessageBox.Show("Invalid IP adress");
-                }
-                */
-
                 IPAddress adrr = IPAddress.Parse(ipBox.Text);
                 running = true;
                 startStopButton.Text = "Stop";
 
-                AsynchClass.OnMessageArrived += new AsynchClass.MessageRecieved(updateUI);
+                myAsynchServer.OnMessageArrived += new AsynchClass.MessageRecieved(updateUI);
 
                 myAsynchServer.start(adrr, Convert.ToInt32(portBox.Text));
 
@@ -73,33 +50,35 @@ namespace _408ServerSide
             }
         }
 
-        public void updateUI(object a,  ServerArgs e)
+        public void updateUI(object a, ServerArgs e)
         {
-            if (this.statusText.InvokeRequired)
+            Console.WriteLine(e.Target);
+
+            if (e.Target.Equals("status"))
             {
-                if(e.Target.Equals("status"))
+                if (this.statusText.InvokeRequired)
                 {
-                    SetTextCallback d = new SetTextCallback(setStatus);
-                    this.Invoke(d, new object[] { e.Message });
+                    SetTextCallback setText = n => { statusText.Text = n; };
+                    this.Invoke(setText, new object[] { e.Message });
                 }
-                else if(e.Target.Equals("rtb"))
+                else
                 {
-                    SetTextCallback d = new SetTextCallback(appendText);
-                    this.Invoke(d, new object[] { e.Message });
+                    statusText.Text = e.Message;
+                }
+            }
+            else if(e.Target.Equals("rtb"))
+            {
+                if (this.infoBox.InvokeRequired)
+                {
+                    SetTextCallback setText = n => { infoBox.AppendText(n + "\n"); };
+                    this.Invoke(setText, new object[] { e.Message });
+                }
+                else
+                {
+                    infoBox.AppendText(e.Message + "\n");
                 }
             }
         }
-
-        public void setStatus(string text)
-        {
-            statusText.Text = text;
-        }
-
-        public void appendText(string text)
-        {
-            infoBox.AppendText(text + "\n");
-        }
-
     }
 }
 
