@@ -52,7 +52,7 @@
             this.connectButton.TabIndex = 0;
             this.connectButton.Text = "Connect";
             this.connectButton.UseVisualStyleBackColor = true;
-            this.connectButton.Click += new System.EventHandler(this.connectButton_Click_1);
+            this.connectButton.Click += new System.EventHandler(this.connectButton_Click);
             // 
             // listButton
             // 
