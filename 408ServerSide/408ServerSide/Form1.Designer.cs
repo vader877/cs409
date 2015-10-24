@@ -35,6 +35,7 @@
             this.portBox = new System.Windows.Forms.TextBox();
             this.startStopButton = new System.Windows.Forms.Button();
             this.listButton = new System.Windows.Forms.Button();
+            this.statusText = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // infoBox
@@ -79,7 +80,7 @@
             // 
             // startStopButton
             // 
-            this.startStopButton.Location = new System.Drawing.Point(15, 143);
+            this.startStopButton.Location = new System.Drawing.Point(15, 99);
             this.startStopButton.Name = "startStopButton";
             this.startStopButton.Size = new System.Drawing.Size(75, 23);
             this.startStopButton.TabIndex = 6;
@@ -89,18 +90,28 @@
             // 
             // listButton
             // 
-            this.listButton.Location = new System.Drawing.Point(15, 171);
+            this.listButton.Location = new System.Drawing.Point(15, 128);
             this.listButton.Name = "listButton";
             this.listButton.Size = new System.Drawing.Size(116, 23);
             this.listButton.TabIndex = 7;
             this.listButton.Text = "Get Player List";
             this.listButton.UseVisualStyleBackColor = true;
             // 
+            // statusText
+            // 
+            this.statusText.AutoSize = true;
+            this.statusText.Location = new System.Drawing.Point(12, 179);
+            this.statusText.Name = "statusText";
+            this.statusText.Size = new System.Drawing.Size(72, 17);
+            this.statusText.TabIndex = 8;
+            this.statusText.Text = "Pending...";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(618, 206);
+            this.Controls.Add(this.statusText);
             this.Controls.Add(this.listButton);
             this.Controls.Add(this.startStopButton);
             this.Controls.Add(this.portBox);
@@ -124,6 +135,7 @@
         private System.Windows.Forms.TextBox portBox;
         private System.Windows.Forms.Button startStopButton;
         private System.Windows.Forms.Button listButton;
+        private System.Windows.Forms.Label statusText;
     }
 }
 
