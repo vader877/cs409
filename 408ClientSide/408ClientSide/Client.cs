@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Net.Sockets;
+using System.Threading;
+
+//21:49
 
 namespace _408ClientSide
 {
@@ -18,12 +21,13 @@ namespace _408ClientSide
 
         private void connectButton_Click(object sender, EventArgs e)
         {
-            if (newClient.Connected)
+            NetworkStream serverStream = newClient.GetStream();
+
+            if (!newClient.Connected)
             {
                 try
                 {
-                    // establishing connection to the server 
-
+                    // establishing connection to the server
                     connectButton.Text = "Disconnect";
                     byte ipPart1 = Convert.ToByte(ipServer.Text.Substring(0, 3));
                     byte ipPart2 = Convert.ToByte(ipServer.Text.Substring(4, 3));
@@ -33,37 +37,56 @@ namespace _408ClientSide
                     int portNo = (int)portNumber.Value;
                     newClient.Connect(ipFinal, portNo);
                     displayScreen.AppendText("Establising connection to the server...\n");
-
-                    // sending playerName to the server
-
-                    NetworkStream serverStream = newClient.GetStream();
-                    byte[] sentStream = System.Text.Encoding.ASCII.GetBytes(playerName.Text + "$");
-                    serverStream.Write(sentStream, 0, sentStream.Length);
-                    serverStream.Flush();
-
-                    displayScreen.AppendText("Checking for " + playerName + "...\n");
-
-                    // receiving acknowledgement from the server about if playerName is unique or not
-
-                    byte[] approvalByte = new byte[1024];
-                    serverStream.Read(approvalByte, 0, (int)approvalByte.Length);
+                
+                    byte[] approvalByte = new byte[4];
+                    
+                    for (int k=0; k<3; k++)
+                    {
+                        if (newClient.Connected)
+                        {
+                            serverStream.Read(approvalByte, 0, (int)approvalByte.Length);
+                            break;
+                        }
+                        Thread.Sleep(500);
+                    }
+                    
                     string approvalString = System.Text.Encoding.ASCII.GetString(approvalByte);
 
-                    if (approvalString == "y")
+                    if (approvalString == "001$")
                     {
-                        displayScreen.AppendText("Connection successful!\n\n");
-                        statusText.Text = "CONNECTED";
+                        // sending playerName to the server
+                        displayScreen.AppendText("Checking for " + playerName + "...\n");
+                        byte[] pNameByte = System.Text.Encoding.ASCII.GetBytes(playerName.Text + "$");
+                        serverStream.Write(pNameByte, 0, pNameByte.Length);
+                        serverStream.Flush();
+
+                        // receiving acknowledgement from the server about if playerName is unique or not
+                        byte[] nameCheckByte = new byte[4];
+                        serverStream.Read(nameCheckByte, 0, (int)nameCheckByte.Length);
+                        string nameCheckString = System.Text.Encoding.ASCII.GetString(nameCheckByte);
+
+                        if (nameCheckString == "002$")
+                        {
+                            displayScreen.AppendText("Connection successful!\n\n");
+                            statusText.Text = "CONNECTED";
+                        }
+
+                        else
+                        {
+                            displayScreen.AppendText("Player already exists. Please try a different name.\n\n");
+                            connectButton.Text = "Connect";
+
+                            if (newClient.Connected)
+                                newClient.Close();
+
+                            playerName.Clear();
+                        }
+
                     }
 
                     else
                     {
-                        displayScreen.AppendText("Player already exists. Please try a different name.\n\n");
-                        connectButton.Text = "Connect";
-                        
-                        if (!newClient.Connected)
-                        newClient.Close();
-                        
-                        playerName.Clear();
+                        displayScreen.AppendText("Connection failed!\n\n");
                     }
                 }
                 catch (Exception ex)
@@ -74,9 +97,11 @@ namespace _408ClientSide
 
             else
             {
-                if (!newClient.Connected)
+                byte[] disconnectByte = System.Text.Encoding.ASCII.GetBytes("004$");
+                serverStream.Write(disconnectByte, 0, disconnectByte.Length);
+                serverStream.Flush();
                 newClient.Close();
-
+                
                 statusText.Text = "DISCONNECTED";
                 connectButton.Text = "Connect";
             }
@@ -108,7 +133,7 @@ namespace _408ClientSide
             
             for(int i=0; i<words.Length; i++)
             {
-                displayScreen.AppendText(words[0] + "\n");
+                displayScreen.AppendText(words[i] + "\n");
             }
 
             displayScreen.AppendText("\n");
