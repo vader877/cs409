@@ -2,8 +2,9 @@
 using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Threading;
+using System.Net;
 
-//21:49
+//22:45
 
 namespace _408ClientSide
 {
@@ -11,31 +12,24 @@ namespace _408ClientSide
     {
         TcpClient newClient = new TcpClient();
 
-
         public Client()
         {
-            statusText.Text = "DISCONNECTED";
             InitializeComponent();
-            
+            statusText.Text = "DISCONNECTED";
         }
 
         private void connectButton_Click(object sender, EventArgs e)
         {
-            NetworkStream serverStream = newClient.GetStream();
-
             if (!newClient.Connected)
             {
                 try
                 {
                     // establishing connection to the server
                     connectButton.Text = "Disconnect";
-                    byte ipPart1 = Convert.ToByte(ipServer.Text.Substring(0, 3));
-                    byte ipPart2 = Convert.ToByte(ipServer.Text.Substring(4, 3));
-                    byte ipPart3 = Convert.ToByte(ipServer.Text.Substring(8, 3));
-                    byte ipPart4 = Convert.ToByte(ipServer.Text.Substring(12, 3));
-                    string ipFinal = ipPart1.ToString() + "." + ipPart2.ToString() + "." + ipPart3.ToString() + "." + ipPart4.ToString();
+                    IPAddress ipAdr= IPAddress.Parse(ipServer.Text);
                     int portNo = (int)portNumber.Value;
-                    newClient.Connect(ipFinal, portNo);
+                    newClient.Connect(ipAdr, portNo);
+                    NetworkStream serverStream = newClient.GetStream();
                     displayScreen.AppendText("Establising connection to the server...\n");
                 
                     byte[] approvalByte = new byte[4];
@@ -51,6 +45,7 @@ namespace _408ClientSide
                     }
                     
                     string approvalString = System.Text.Encoding.ASCII.GetString(approvalByte);
+                   
 
                     if (approvalString == "001$")
                     {
@@ -78,7 +73,7 @@ namespace _408ClientSide
 
                             if (newClient.Connected)
                                 newClient.Close();
-
+                            
                             playerName.Clear();
                         }
 
@@ -97,9 +92,10 @@ namespace _408ClientSide
 
             else
             {
+                NetworkStream disconnectStream = newClient.GetStream();
                 byte[] disconnectByte = System.Text.Encoding.ASCII.GetBytes("004$");
-                serverStream.Write(disconnectByte, 0, disconnectByte.Length);
-                serverStream.Flush();
+                disconnectStream.Write(disconnectByte, 0, disconnectByte.Length);
+                disconnectStream.Flush();
                 newClient.Close();
                 
                 statusText.Text = "DISCONNECTED";
@@ -138,10 +134,6 @@ namespace _408ClientSide
 
             displayScreen.AppendText("\n");
         }
-
-        private void connectButton_Click_1(object sender, EventArgs e)
-        {
-
-        }
+       
     }
 }
