@@ -3,15 +3,19 @@ using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Threading;
 using System.Net;
+using System.Text;
 
-//22:45
+//00:41
 
 namespace _408ClientSide
 {
     public partial class Client : Form
     {
-        TcpClient newClient = new TcpClient();
-
+        Socket sck;
+        EndPoint epLocal, epRemote;
+        byte[] buffer;
+        string lastData;    //last received data from the server
+        
         public Client()
         {
             InitializeComponent();
@@ -20,48 +24,57 @@ namespace _408ClientSide
 
         private void connectButton_Click(object sender, EventArgs e)
         {
-            if (!newClient.Connected)
+            if (!sck.Connected)
             {
                 try
                 {
                     // establishing connection to the server
                     connectButton.Text = "Disconnect";
-                    IPAddress ipAdr= IPAddress.Parse(ipServer.Text);
-                    int portNo = (int)portNumber.Value;
-                    newClient.Connect(ipAdr, portNo);
-                    NetworkStream serverStream = newClient.GetStream();
                     displayScreen.AppendText("Establising connection to the server...\n");
-                
-                    byte[] approvalByte = new byte[4];
-                    
+
+                    epLocal = new IPEndPoint(IPAddress.Any, (int)portNumber.Value);
+                    sck.Bind(epLocal);
+
+                    epRemote = new IPEndPoint(IPAddress.Parse(ipServer.Text), (int)portNumber.Value);
+                    sck.Connect(epRemote);
+
+                    buffer = new byte[3];
+                    sck.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(CallBack), buffer);
+
+                    ASCIIEncoding aEncoding = new ASCIIEncoding();
+                    byte[] connectionRequest = aEncoding.GetBytes("10$");  // 10$ tells the server that there is a connection request from the client
+                    sck.Send(connectionRequest);
+
                     for (int k=0; k<3; k++)
                     {
-                        if (newClient.Connected)
+                        if (sck.Connected)
+                            break;
+
+                        else if (k == 2)
                         {
-                            serverStream.Read(approvalByte, 0, (int)approvalByte.Length);
+                            displayScreen.AppendText("Request timed out. No response from the server.\n\n");
                             break;
                         }
+                            
                         Thread.Sleep(500);
                     }
                     
-                    string approvalString = System.Text.Encoding.ASCII.GetString(approvalByte);
-                   
 
-                    if (approvalString == "001$")
+                    if (lastData == "11$")      // $11 tells the client that the connection is successful
                     {
+                        lastData = string.Empty;
                         // sending playerName to the server
                         displayScreen.AppendText("Checking for " + playerName + "...\n");
-                        byte[] pNameByte = System.Text.Encoding.ASCII.GetBytes(playerName.Text + "$");
-                        serverStream.Write(pNameByte, 0, pNameByte.Length);
-                        serverStream.Flush();
+                        byte[] pName = aEncoding.GetBytes(playerName.Text);
+                        sck.Send(pName);
 
                         // receiving acknowledgement from the server about if playerName is unique or not
-                        byte[] nameCheckByte = new byte[4];
-                        serverStream.Read(nameCheckByte, 0, (int)nameCheckByte.Length);
-                        string nameCheckString = System.Text.Encoding.ASCII.GetString(nameCheckByte);
+                        buffer = new byte[3];
+                        sck.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(CallBack), buffer);
 
-                        if (nameCheckString == "002$")
+                        if (lastData == "21$")  // 21$ tells the client that playerName is available
                         {
+                            lastData = string.Empty;
                             displayScreen.AppendText("Connection successful!\n\n");
                             statusText.Text = "CONNECTED";
                         }
@@ -71,8 +84,8 @@ namespace _408ClientSide
                             displayScreen.AppendText("Player already exists. Please try a different name.\n\n");
                             connectButton.Text = "Connect";
 
-                            if (newClient.Connected)
-                                newClient.Close();
+                            if (sck.Connected)
+                                sck.Close();
                             
                             playerName.Clear();
                         }
@@ -92,14 +105,33 @@ namespace _408ClientSide
 
             else
             {
-                NetworkStream disconnectStream = newClient.GetStream();
-                byte[] disconnectByte = System.Text.Encoding.ASCII.GetBytes("004$");
-                disconnectStream.Write(disconnectByte, 0, disconnectByte.Length);
-                disconnectStream.Flush();
-                newClient.Close();
-                
+                ASCIIEncoding aEncoding = new ASCIIEncoding();
+                byte[] disconnectByte = aEncoding.GetBytes("40$");       // 40$ tells the server that the client requested to disconnect
+                sck.Send(disconnectByte);
+
+                sck.Close();
+
                 statusText.Text = "DISCONNECTED";
                 connectButton.Text = "Connect";
+            }
+        }
+
+        private void CallBack(IAsyncResult aResult)
+        {
+            try
+            {
+                byte[] receivedData = new byte[10240];
+                receivedData = (byte[])aResult.AsyncState;
+                
+                ASCIIEncoding aEncoding = new ASCIIEncoding();
+                lastData = aEncoding.GetString(receivedData);
+                
+                buffer = new byte[10240];
+                sck.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(CallBack), buffer);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "An error occurred while transmitting data.", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -108,25 +140,20 @@ namespace _408ClientSide
             this.Close();
         }
 
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void listButton_Click(object sender, EventArgs e)
         {
-            NetworkStream serverStream = newClient.GetStream();
-            byte[] sentStream = System.Text.Encoding.ASCII.GetBytes("PL");
-            serverStream.Write(sentStream, 0, sentStream.Length);
-            serverStream.Flush();
+            ASCIIEncoding aEncoding = new ASCIIEncoding();
+            byte[] listByte = aEncoding.GetBytes("30$");    // 30$ tells the server that the client requested the list of currently online players
+            sck.Send(listByte);
 
             displayScreen.AppendText("Generating the list of online players...\n\n");
 
-            byte[] PLByte = new byte[102400];   // a list size of 100 kilobytes
-            serverStream.Read(PLByte, 0, (int)PLByte.Length);
-            string PLString = System.Text.Encoding.ASCII.GetString(PLByte);
-            string[] words = PLString.Split('$');
-            
+            buffer = new byte[10240];   // 10 kilobytes
+            sck.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref epRemote, new AsyncCallback(CallBack), buffer);
+
+            string[] words = lastData.Split('$');
+            lastData = string.Empty;
+
             for(int i=0; i<words.Length; i++)
             {
                 displayScreen.AppendText(words[i] + "\n");
