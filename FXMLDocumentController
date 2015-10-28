@@ -1,0 +1,139 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cs408clientside;
+
+import java.net.URL;
+import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.TextField;
+import java.io.*;
+import java.net.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.scene.control.Button;
+
+/**
+ *
+ * @author acer-pc
+ */
+public class FXMLDocumentController implements Initializable {
+
+    @FXML
+    private javafx.scene.control.TextArea displayScreen;
+    @FXML
+    private TextField playerName;
+
+    @FXML
+    private TextField serverIP;
+
+    @FXML
+    private TextField statusText;
+
+    @FXML
+    private Button connectButton;
+
+    @FXML
+    private TextField portNumber;
+
+    Socket sck;
+    DataOutputStream toServer;
+    BufferedReader fromServer;
+    boolean isConnected = false;
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        // TODO
+
+    }
+
+    private void initSocket() {
+        try {
+            sck = new Socket(InetAddress.getByName(serverIP.getText()), Integer.parseInt(portNumber.getText()));
+            toServer = new DataOutputStream(sck.getOutputStream());
+            fromServer = new BufferedReader(new InputStreamReader(sck.getInputStream()));
+        } catch (IOException ex) {
+            Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @FXML
+    private void connectButtonClick(ActionEvent e) {
+        if (!isConnected) {
+            try {
+                displayScreen.appendText("Establishing connection to the server...\n");
+
+                initSocket();
+                isConnected = true;
+                connectButton.setText("Disconnect");
+
+                if ("$0cr$".equals(fromServer.readLine())) {      // server -> client : connection yes
+                    displayScreen.appendText("Checking for the player name...\n");
+                    toServer.writeBytes(playerName.getText());
+                    if ("$0py$".equals(fromServer.readLine())) // server -> client : player name yes
+                    {
+                        displayScreen.appendText("Connection successful!\n\n");
+                        statusText.setText("CONNECTED");
+                    } else {
+                        displayScreen.appendText("Player name is already in use! Please select a different name.\n\n");
+                        sck.close();
+                        playerName.setText("");
+                        statusText.setText("DISCONNECTED");
+                        connectButton.setText("Connect");
+                    }
+                } else {
+                    displayScreen.appendText("");
+                }
+
+            } catch (IOException ex) {
+                Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            try {
+                toServer.writeBytes("10dr$");       // client -> server : disconnection request
+                sck.close();
+                displayScreen.appendText("Successfully disconnected from the server.");
+                statusText.setText("DISCONNECTED");
+                connectButton.setText("Connect");
+            } catch (IOException ex) {
+                Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+
+    }
+
+    @FXML
+    private void listButtonClick(ActionEvent e) {
+        if (!isConnected) {
+            initSocket();
+        }
+
+        try {
+            toServer.writeBytes("10lr$");   // client -> server : list request
+            displayScreen.appendText("Player list:\n");
+            String[] arr = (fromServer.readLine()).split("$");
+            for (int k = 0; k < arr.length; k++) {
+                displayScreen.appendText(arr[k] + '\n');
+            }
+            displayScreen.appendText("---------------------------------\n");
+        } catch (IOException ex) {
+            Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    @FXML
+    private void exitButtonClick(ActionEvent e) {
+        try {
+            sck.close();
+        } catch (IOException ex) {
+            Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+}
